@@ -15,6 +15,16 @@ bot = commands.Bot(command_prefix='!')
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name}')
+    
+    # ID канала, в который нужно отправить сообщение
+    channel_id = 1473311689444425829  # Замените на ID вашего канала
+    channel = bot.get_channel(channel_id)
+    
+    # Проверка, существует ли уже сообщение с кнопками
+    messages = await channel.history(limit=1).flatten()
+    if not messages or not messages[0].components:
+        # Отправь сообщение с кнопками в канал
+        await channel.send('Для создания тикета нажмите кнопку ниже.', view=TicketView())
 
 # Модальное окно для ввода информации
 class TicketModal(Modal):
@@ -27,7 +37,7 @@ class TicketModal(Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         # ID категории, в которой будут создаваться тикеты
-        category_id = 1234567890  # Замените на ID вашей категории
+        category_id = 1473317351368822857  # Замените на ID вашей категории
         category = interaction.guild.get_channel(category_id)
         
         # Получение текущего номера тикета из файла
@@ -80,12 +90,6 @@ class TicketView(View):
         super().__init__()
         self.add_item(OpenTicketButton())
         self.add_item(CloseTicketButton())
-
-# Команда для создания тикета
-@bot.command(ticket)
-async def ticket(ctx):
-    # Отправь сообщение с кнопками
-    await ctx.send('Для создания тикета нажмите кнопку ниже.', view=TicketView())
 
 # Запусти бота
 bot.run(os.getenv('DISCORD_TOKEN'))
