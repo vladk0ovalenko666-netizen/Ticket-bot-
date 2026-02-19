@@ -82,7 +82,7 @@ class TicketView(View):
         self.add_item(CloseTicketButton())
 
 # Команда для создания тикета
-@bot.command()
+@bot.command(ticket)
 async def ticket(ctx):
     # Отправь сообщение с кнопками
     await ctx.send('Для создания тикета нажмите кнопку ниже.', view=TicketView())
