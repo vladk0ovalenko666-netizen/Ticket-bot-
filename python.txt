@@ -2,11 +2,14 @@ import discord
 from discord.ext import commands
 from discord.ui import Modal, TextInput, Button, View
 import json
-from dotenv import load_dotenv
 import os
 
-# Загрузи переменные окружения из файла .env
-load_dotenv()
+# Попробуй импортировать модуль dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("Модуль python-dotenv не установлен. Пожалуйста, установите его с помощью 'pip install python-dotenv'.")
 
 # Создай экземпляр бота
 bot = commands.Bot(command_prefix='!')
