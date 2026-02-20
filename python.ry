@@ -112,4 +112,5 @@ async def send_ticket_message(ctx):
     await channel.send('Для создания тикета нажмите кнопку ниже.', view=TicketView())
 
 # Запусти бота
+
 bot.run(os.getenv('DISCORD_TOKEN'))
