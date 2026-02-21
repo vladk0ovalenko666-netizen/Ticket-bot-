@@ -11,7 +11,7 @@ load_dotenv()
 # Создай экземпляр бота с указанием intents
 intents = discord.Intents.default()
 intents.message_content = True  # Включи необходимые intents
-bot = commands.Bot(command_prefix='/', intents=intents)
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Обработчик события готовности бота
 @bot.event
