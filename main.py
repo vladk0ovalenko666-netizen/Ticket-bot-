@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord.ui import Button, View
+from discord.ui import Modal, TextInput, Button, View
 import json
 from dotenv import load_dotenv
 import os
@@ -10,55 +10,94 @@ load_dotenv()
 
 # Создай экземпляр бота с указанием intents
 intents = discord.Intents.default()
-intents.message_content = True  # Включи необходимые intents
+intents.message_content = True    # Включи необходимые intents
 bot = commands.Bot(command_prefix='!', intents=intents)
-
-# Импортируй команды из файла commands.py
-from commands import ticket, close_ticket, send_ticket_message
-
-# Кнопка для открытия тикета
-class OpenTicketButton(Button):
-    def __init__(self):
-        super().__init__(label='Открыть тикет', style=discord.ButtonStyle.primary)
-
-    async def callback(self, interaction: discord.Interaction):
-        # Отправь модальное окно пользователю
-        await interaction.response.send_modal(TicketModal())
-
-# Кнопка для закрытия тикета
-class CloseTicketButton(Button):
-    def __init__(self):
-        super().__init__(label='Закрыть тикет', style=discord.ButtonStyle.danger)
-
-    async def callback(self, interaction: discord.Interaction):
-        # Закрытие канала тикета
-        await interaction.channel.delete()
-        await interaction.response.send_message('Тикет закрыт.', ephemeral=True)
-
-# Вью для кнопок
-class TicketView(View):
-    def __init__(self):
-        super().__init__()
-        self.add_item(OpenTicketButton())
-        self.add_item(CloseTicketButton())
 
 # Обработчик события готовности бота
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name}')
+      print(f'Logged in as {bot.user.name}')
 
-# Регистрация команд
-@bot.tree.command(name='ticket', description='Создать тикет')
-async def ticket_command(interaction: discord.Interaction):
-    await ticket(interaction)
+# Модальное окно для ввода информации
+class TicketModal(Modal):
+      def __init__(self):
+          super().__init__(title='Создание тикета')
+          self.add_item(TextInput(label='Тема тикета', placeholder='Введите тему вашего тикета', required=True))
+          self.add_item(TextInput(label='Описание проблемы', style=discord.TextStyle.long, placeholder='Опишите вашу проблему', required=True))
+          self.add_item(TextInput(label='Сервер', placeholder='Укажите сервер', required=True))
+          self.add_item(TextInput(label='Steam ID', placeholder='Введите ваш Steam ID', required=True))
 
-@bot.tree.command(name='close_ticket', description='Закрыть тикет')
-async def close_ticket_command(interaction: discord.Interaction):
-    await close_ticket(interaction)
+      async def on_submit(self, interaction: discord.Interaction):
+          # ID категории, в которой будут создаваться тикеты
+          category_id = 1234567890    # Замените на ID вашей категории
+          category = interaction.guild.get_channel(category_id)
+          
+          # Получение текущего номера тикета из файла
+          with open('ticket_number.json', 'r') as file:
+              data = json.load(file)
+              ticket_number = data['ticket_number']
+          
+          # Создай новый текстовый канал для тикета в указанной категории
+          ticket_channel = await interaction.guild.create_text_channel(f'ticket-{ticket_number}', category=category)
+          
+          # Добавь пользователя, который создал тикет, в канал
+          await ticket_channel.set_permissions(interaction.user, read_messages=True, send_messages=True)
+          
+          # Добавь администратора или модератора в канал (если нужно)
+          # await ticket_channel.set_permissions(interaction.guild.get_role(ADMIN_ROLE_ID), read_messages=True, send_messages=True)
+          
+          # Отправь сообщение в канал с информацией из модального окна
+          await ticket_channel.send(f'Привет, {interaction.user.mention}! Это твой тикет №{ticket_number}. Тема: {self.children[0].value}. Описание: {self.children[1].value}. Сервер: {self.children[2].value}. Steam ID: {self.children[3].value}')
+          
+          # Отправь сообщение пользователю о создании тикета
+          await interaction.response.send_message(f'{interaction.user.mention}, твой тикет №{ticket_number} создан в канале {ticket_channel.mention}.')
+          
+          # Увеличение номера тикета и сохранение в файл
+          data['ticket_number'] += 1
+          with open('ticket_number.json', 'w') as file:
+              json.dump(data, file)
 
+# Кнопка для открытия тикета
+class OpenTicketButton(Button):
+      def __init__(self):
+          super().__init__(label='Открыть тикет', style=discord.ButtonStyle.primary)
+
+      async def callback(self, interaction: discord.Interaction):
+          # Отправь модальное окно пользователю
+          await interaction.response.send_modal(TicketModal())
+
+# Кнопка для закрытия тикета
+class CloseTicketButton(Button):
+      def __init__(self):
+          super().__init__(label='Закрыть тикет', style=discord.ButtonStyle.danger)
+
+      async def callback(self, interaction: discord.Interaction):
+          # Закрытие канала тикета
+          await interaction.channel.delete()
+          await interaction.response.send_message('Тикет закрыт.', ephemeral=True)
+
+# Вью для кнопок
+class TicketView(View):
+      def __init__(self):
+          super().__init__()
+          self.add_item(OpenTicketButton())
+          self.add_item(CloseTicketButton())
+
+# Команда для отправки сообщения с кнопками в определенный канал
 @bot.command()
 async def send_ticket_message(ctx):
-    await send_ticket_message(ctx)
+      # ID канала, в который нужно отправить сообщение
+      channel_id = 1234567890    # Замените на ID вашего канала
+      channel = bot.get_channel(channel_id)
+      
+      # Отправь сообщение с кнопками в канал
+      await channel.send('Для создания тикета нажмите кнопку ниже.', view=TicketView())
+
+# Команда для создания тикета
+@bot.tree.command(name='ticket', description='Создать тикет')
+async def ticket(interaction: discord.Interaction):
+      # Отправь модальное окно пользователю
+      await interaction.response.send_modal(TicketModal())
 
 # Запусти бота
 bot.run(os.getenv('DISCORD_TOKEN'))
