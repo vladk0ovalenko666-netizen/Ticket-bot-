@@ -1,12 +1,15 @@
-import discord
-from discord.ext import commands
-from discord.ui import Modal, TextInput, Button, View
-import json
-from dotenv import load_dotenv
 import os
+import json
+import subprocess
+import sys
 
-# Загрузи переменные окружения из файла .env
-load_dotenv()
+# Попробуй импортировать модуль discord
+try:
+    import discord
+    from discord.ext import commands
+    from discord.ui import Modal, TextInput, Button, View
+except ImportError:
+    print("Модуль discord.py не установлен. Пожалуйста, установите его с помощью 'pip install discord.py'.")
 
 # Создай экземпляр бота с указанием intents
 intents = discord.Intents.default()
