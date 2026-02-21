@@ -29,7 +29,7 @@ class TicketModal(Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         # ID категории, в которой будут создаваться тикеты
-        category_id = 1473317351368822857  # Замените на ID вашей категории
+        category_id = 1234567890  # Замените на ID вашей категории
         category = interaction.guild.get_channel(category_id)
         
         # Получение текущего номера тикета из файла
@@ -87,7 +87,7 @@ class TicketView(View):
 @bot.command()
 async def send_ticket_message(ctx):
     # ID канала, в который нужно отправить сообщение
-    channel_id = 1473311689444425829  # Замените на ID вашего канала
+    channel_id = 1234567890  # Замените на ID вашего канала
     channel = bot.get_channel(channel_id)
     
     # Отправь сообщение с кнопками в канал
