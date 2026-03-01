@@ -1,0 +1,20 @@
+{
+  "TOKEN": "", 
+  "CHANEL_ID": 1473312599402877140,
+  "ROLE_NAME": "Soul",
+  "STATUS": true,
+  "SERVERS": [
+    {
+      "HOST": "185.189.255.163",
+      "PORT": 35400,
+      "PASS": ""
+    }
+  ],
+  "MESSAGES": {
+    "WELCOME_EMBED": {
+      "TITLE": "LINKING SYSTEM",
+      "DESCRIPTION": "1. Create the code on the server in the menu /link\n2. Copy the code\n3. Send the code to chat\n4. Get rewarded",
+      "FOOTER": "________________________________"
+    }
+  }
+}
